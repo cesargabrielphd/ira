@@ -25,14 +25,43 @@ window.onload = function () {
     }
 };
 
-// Função para calcular o resultado baseado na nota
-function calcularResultado(periodo, disciplina) {
-    const notaInput = document.getElementById(`periodo${periodo}-disciplina${disciplina}-nota1`);
-    const resultadoSpan = document.getElementById(`periodo${periodo}-disciplina${disciplina}-resultado`);
-    const nota = parseFloat(notaInput.value);
+// Função para adicionar uma disciplina ao período
+function adicionarDisciplina(periodo) {
+    const periodoDiv = document.getElementById(`periodo${periodo}-disciplinas`);
+    if (!periodoDiv) {
+        console.error(`Elemento com id "periodo${periodo}-disciplinas" não encontrado.`);
+        return;  // Retorna para evitar erro
+    }
 
+    disciplinaCounts[periodo]++;  // Incrementa o contador de disciplinas para o período específico
+
+    const novaDisciplina = document.createElement('div');
+    novaDisciplina.id = `periodo${periodo}-disciplina${disciplinaCounts[periodo]}`;
+    novaDisciplina.classList.add("row", "g-3");
+    novaDisciplina.innerHTML = `
+        <div class="col-sm-4">
+            <input type="text" id="periodo${periodo}-disciplina${disciplinaCounts[periodo]}-codigo" class="form-control" placeholder="Código da Disciplina" />
+        </div>
+        <div class="col-sm-2">
+            <select id="periodo${periodo}-disciplina${disciplinaCounts[periodo]}-resultado" class="form-control" onchange="atualizarStatus(${periodo}, ${disciplinaCounts[periodo]})">
+                <option value="SR">SR</option>
+                <option value="II">II</option>
+                <option value="MI">MI</option>
+                <option value="MM">MM</option>
+                <option value="MS">MS</option>
+                <option value="SS">SS</option>
+            </select>
+        </div>
+        <div class="col-sm-2" id="status-col-${periodo}-${disciplinaCounts[periodo]}">
+            <span id="status-${periodo}-${disciplinaCounts[periodo]}">Status</span>
+        </div>
+    `;
+    periodoDiv.appendChild(novaDisciplina);
+}
+
+// Função para calcular a menção com base na nota
+function calcularNota(nota) {
     let resultado = "";
-
     if (nota >= 9 && nota <= 10) {
         resultado = "SS";
     } else if (nota >= 7 && nota < 9) {
@@ -46,71 +75,39 @@ function calcularResultado(periodo, disciplina) {
     } else if (nota === 0) {
         resultado = "SR";
     }
-
-    // Atualiza o span para a menção correspondente
-    resultadoSpan.textContent = resultado;
+    return resultado;
 }
 
-function adicionarDisciplina(periodo) {
-    // Verifique se o periodoDiv existe
-    const periodoDiv = document.getElementById(`periodo${periodo}-disciplinas`);
-    console.log(periodoDiv);  // Adicione essa linha para depurar
+// Função para calcular o resultado baseado na nota
+function calcularResultado(periodo, disciplina) {
+    const notaInput = document.getElementById(`periodo${periodo}-disciplina${disciplina}-nota1`);
+    const resultadoSelect = document.getElementById(`periodo${periodo}-disciplina${disciplina}-resultado`);
+    const nota = parseFloat(notaInput.value);
 
-    if (!periodoDiv) {
-        console.error(`Elemento com id "periodo${periodo}-disciplinas" não encontrado.`);
-        return;  // Retorna para evitar erro
+    if (isNaN(nota) || nota < 0 || nota > 10) {
+        resultadoSelect.value = ""; // Limpa o campo de menção
+        return;
     }
 
-    disciplinaCounts[periodo]++;  // Incrementa o contador de disciplinas para o período específico
-
-    const novaDisciplina = document.createElement('div');
-    novaDisciplina.id = `periodo${periodo}-disciplina${disciplinaCounts[periodo]}`;
-    novaDisciplina.classList.add("row", "g-3");
-    novaDisciplina.innerHTML = `
-        <div class="col-sm-4">
-            <input type="text" id="periodo${periodo}-disciplina${disciplinaCounts[periodo]}-codigo" class="form-control" placeholder="Código da Disciplina">
-        </div>
-        <div class="col-sm-2">
-            <select id="periodo${periodo}-disciplina${disciplinaCounts[periodo]}-resultado" class="form-control" onchange="atualizarStatus(${periodo}, ${disciplinaCounts[periodo]})">
-              <option value="" selected disabled>Menção</option>
-                <option value="SR">SR</option>
-                <option value="II">II</option>
-                <option value="MI">MI</option>
-                <option value="MM">MM</option>
-                <option value="MS">MS</option>
-                <option value="SS">SS</option>
-            </select>
-        </div>
-        <div class="col-sm-2" id="resultado-col-${periodo}-${disciplinaCounts[periodo]}" style="display: block;">
-            <span id="periodo${periodo}-disciplina${disciplinaCounts[periodo]}-resultado">Resultado</span>
-        </div>
-    `;
-    periodoDiv.appendChild(novaDisciplina);
+    const resultado = calcularNota(nota); // Calcula a menção com base na nota
+    resultadoSelect.value = resultado; // Atualiza o campo de menção
+    atualizarStatus(periodo, disciplina, resultado);  // Atualiza o status com a menção calculada
 }
 
-
-// Função para atualizar o status de Aprovado/Reprovado
-function atualizarStatus(periodo, disciplina) {
-    const resultadoSelect = document.getElementById(`periodo${periodo}-disciplina${disciplina}-resultado`);
+// Função para atualizar o status baseado na menção
+function atualizarStatus(periodo, disciplina, resultado) {
     const statusCol = document.getElementById(`status-col-${periodo}-${disciplina}`);
     const statusSpan = document.getElementById(`status-${periodo}-${disciplina}`);
-    const resultadoSpan = document.getElementById(`periodo${periodo}-disciplina${disciplina}-resultado`);
 
-    const resultado = resultadoSelect.value;
-
-    // Exibe o status de Aprovado ou Reprovado com base na menção
+    // Lógica para definir o status de "Aprovado" ou "Reprovado"
     let status = "";
-
     if (resultado === "SS" || resultado === "MS" || resultado === "MM") {
         status = "Aprovado";
     } else if (resultado === "II" || resultado === "MI" || resultado === "SR") {
         status = "Reprovado";
     }
 
-    // Atualiza o status na coluna de status
-    statusSpan.textContent = status;
-    statusCol.style.display = "block"; // Exibe a coluna de status
-
-    // Atualiza o span de resultado
-    resultadoSpan.textContent = resultado;
+    // Atualiza o conteúdo do status na <span> e exibe a coluna de status
+    statusSpan.textContent = status; // Atualiza o texto dentro da <span> com o ID correto
+    statusCol.style.display = "block"; // Garante que o status seja exibido
 }
