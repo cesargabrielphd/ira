@@ -1,294 +1,152 @@
-var textosCreditos = ["Créditos", "2", "3", "4", "6", "8", "10", "12", "16", "22", "40", "52", "64"];
-var valoresCreditos = [-1, 2, 3, 4, 6, 8, 10, 12, 16, 22, 40, 52, 64];
+// Variável global para acompanhar o número de períodos criados
+let numeroPeriodos = 1;
 
+// Função para inicializar o primeiro período ao carregar a página
+window.onload = function () {
+    criarPrimeiroPeriodo();
+};
+
+// Função que cria o primeiro período quando a página carrega
+function criarPrimeiroPeriodo() {
+    // Cria o primeiro período com as opções de adicionar disciplinas
+    const periodoContainer = document.getElementById('periodosContainer');
+
+    const periodoHTML = `
+        <div id="periodo${numeroPeriodos}" class="periodo">
+            <div class="alinhado">
+                <h3>${numeroPeriodos}º Período</h3>
+                <button class="btn btn-primary" onclick="adicionarDisciplina(${numeroPeriodos})">Adicionar Disciplina</button>
+            </div>
+            <div id="periodo${numeroPeriodos}-disciplinas">
+                <!-- Disciplinas serão adicionadas aqui -->
+            </div>
+        </div>
+    `;
+
+    periodoContainer.innerHTML = periodoHTML;
+}
+
+// Função para criar um novo período ao clicar no botão
+function criaPeriodo() {
+    numeroPeriodos++;
+
+    const novoPeriodo = document.createElement('div');
+    novoPeriodo.id = `periodo${numeroPeriodos}`;
+    novoPeriodo.classList.add('periodo');
+
+    novoPeriodo.innerHTML = `
+        <div class="alinhado">
+            <h3>${numeroPeriodos}º Período</h3>
+            <button class="btn btn-primary" onclick="adicionarDisciplina(${numeroPeriodos})">Adicionar Disciplina</button>
+        </div>
+        <div id="periodo${numeroPeriodos}-disciplinas">
+            <!-- Disciplinas serão adicionadas aqui -->
+        </div>
+    `;
+
+    const periodosContainer = document.getElementById('periodosContainer');
+    periodosContainer.appendChild(novoPeriodo);
+}
+
+// Função para adicionar disciplina ao período específico
+function adicionarDisciplina(periodo) {
+    const numeroDisciplinas = document.querySelectorAll(`#periodo${periodo}-disciplinas .row`).length + 1;
+
+    const novaDisciplina = document.createElement('div');
+    novaDisciplina.classList.add('row', 'g-3');
+    novaDisciplina.id = `periodo${periodo}-disciplina${numeroDisciplinas}`;
+
+    novaDisciplina.innerHTML = `
+        <div class="col-sm-4">
+            <input type="text" id="periodo${periodo}-disciplina${numeroDisciplinas}-codigo" class="form-control" placeholder="Código da Disciplina">
+        </div>
+        <div class="col-sm-4">
+            <input type="text" id="periodo${periodo}-disciplina${numeroDisciplinas}-nome" class="form-control" placeholder="Nome da Disciplina">
+        </div>
+        <div class="col-sm-2">
+            <input type="number" id="periodo${periodo}-disciplina${numeroDisciplinas}-nota1" class="form-control" placeholder="Nota 1" min="0" max="10">
+        </div>
+        <div class="col-sm-2">
+            <select id="periodo${periodo}-disciplina${numeroDisciplinas}-resultado" class="form-select">
+                <option value="-1">Resultado</option>
+                <option value="0">SR</option>
+                <option value="1">II</option>
+                <option value="2">MI</option>
+                <option value="3">MM</option>
+                <option value="4">MS</option>
+                <option value="5">SS</option>
+            </select>
+        </div>
+    `;
+
+    const periodoDisciplinas = document.getElementById(`periodo${periodo}-disciplinas`);
+    periodoDisciplinas.appendChild(novaDisciplina);
+}
+
+// Função para salvar os dados no localStorage (opcional)
+function salvarPeriodos() {
+    const periodos = [];
+    const periodosElements = document.querySelectorAll('.periodo');
+    periodosElements.forEach(periodoElement => {
+        const periodoId = periodoElement.id.replace('periodo', '');
+        const disciplinasElements = periodoElement.querySelectorAll('.row');
+        const disciplinas = [];
+        disciplinasElements.forEach(disciplinaElement => {
+            const disciplinaId = disciplinaElement.id.replace(`periodo${periodoId}-disciplina`, '');
+            const codigo = document.getElementById(`periodo${periodoId}-disciplina${disciplinaId}-codigo`).value;
+            const nome = document.getElementById(`periodo${periodoId}-disciplina${disciplinaId}-nome`).value;
+            const nota1 = document.getElementById(`periodo${periodoId}-disciplina${disciplinaId}-nota1`).value;
+            const resultado = document.getElementById(`periodo${periodoId}-disciplina${disciplinaId}-resultado`).value;
+            disciplinas.push({ id: disciplinaId, codigo, nome, nota1, resultado });
+        });
+        periodos.push({ id: periodoId, disciplinas });
+    });
+    localStorage.setItem('periodos', JSON.stringify(periodos));
+}
+
+// Função para verificar o localStorage ao carregar a página
 function checkLocalStorage() {
-    if (typeof(Storage) === "undefined") {
-        document.getElementById("salvaDados").style.display = "none";
-    } else {
-        
-        if(window.localStorage.length == 0)
-            criaDisciplina();
+    const periodosSalvos = JSON.parse(localStorage.getItem('periodos'));
+    if (periodosSalvos) {
+        periodosSalvos.forEach(periodo => {
+            numeroPeriodos++;
+            const novoPeriodo = document.createElement('div');
+            novoPeriodo.id = `periodo${numeroPeriodos}`;
+            novoPeriodo.classList.add('periodo');
 
-        for(var i  = 1; i <= window.localStorage.length; i++) {
-            var periodo = Object.entries(JSON.parse(window.localStorage.getItem(i)))
-            var j = 0;
-            for(const [key, value] of periodo) {
-                criaDisciplina(true, i, j, value);
-                j++;
-            }
-            if(i != window.localStorage.length)
-                criaPeriodo(true);
-        }
-
-        calculaIRA();
+            novoPeriodo.innerHTML = `
+                <div class="alinhado">
+                    <h3>${numeroPeriodos}º Período</h3>
+                    <button class="btn btn-primary" onclick="adicionarDisciplina(${numeroPeriodos})">Adicionar Disciplina</button>
+                </div>
+                <div id="periodo${numeroPeriodos}-disciplinas">
+                    ${periodo.disciplinas.map(disciplina => `
+                        <div class="row g-3" id="periodo${numeroPeriodos}-disciplina${disciplina.id}">
+                            <div class="col-sm-4">
+                                <input type="text" id="periodo${numeroPeriodos}-disciplina${disciplina.id}-codigo" class="form-control" value="${disciplina.codigo}" placeholder="Código da Disciplina">
+                            </div>
+                            <div class="col-sm-4">
+                                <input type="text" id="periodo${numeroPeriodos}-disciplina${disciplina.id}-nome" class="form-control" value="${disciplina.nome}" placeholder="Nome da Disciplina">
+                            </div>
+                            <div class="col-sm-2">
+                                <input type="number" id="periodo${numeroPeriodos}-disciplina${disciplina.id}-nota1" class="form-control" value="${disciplina.nota1}" placeholder="Nota 1" min="0" max="10">
+                            </div>
+                            <div class="col-sm-2">
+                                <select id="periodo${numeroPeriodos}-disciplina${disciplina.id}-resultado" class="form-select">
+                                    <option value="-1">Resultado</option>
+                                    <option value="0" ${disciplina.resultado === 0 ? 'selected' : ''}>SR</option>
+                                    <option value="1" ${disciplina.resultado === 1 ? 'selected' : ''}>II</option>
+                                    <option value="2" ${disciplina.resultado === 2 ? 'selected' : ''}>MI</option>
+                                    <option value="3" ${disciplina.resultado === 3 ? 'selected' : ''}>MM</option>
+                                    <option value="4" ${disciplina.resultado === 4 ? 'selected' : ''}>MS</option>
+                                    <option value="5" ${disciplina.resultado === 5 ? 'selected' : ''}>SS</option>
+                                </select>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            document.getElementById('periodosContainer').appendChild(novoPeriodo);
+        });
     }
 }
-
-function salvarDados() {
-    var divContainer = document.getElementById('container');
-
-    window.localStorage.clear(); // limpo tudo que estava salvo anteriormente
-
-    var periodos = divContainer.children;
-
-    // começamos do 1 pois há a linha superior
-    for(var i = 1; i < periodos.length; i++) {  
-        var periodo = {}
-        // cada período tem um h3 e divs com disciplinas;
-        var disciplinas = periodos[i].children;
- 
-        for(var j = 1; j < disciplinas.length; j++) {
-            var disciplina = [];
-
-            var camposDisciplina = disciplinas[j].children;
-
-            // só existe um select em cada div, children[0] por isso
-            disciplina.push(camposDisciplina[0].children[0].selectedIndex);
-            disciplina.push(camposDisciplina[1].children[0].selectedIndex);
-            
-            periodo[j] = disciplina;
-        }
-        window.localStorage.setItem(i, JSON.stringify(periodo));
-    }
-}
-
-function calculaIRA() {
-    var numPeriodo = document.getElementById("container").childElementCount - 1;
-    var totalDisciplinas = 0;
-
-    var numeradorIra = 0;
-    var denominadorIra = 0;
-
-    var numeradorMp = 0;
-    var denominadorMp = 0;
-
-    for(var i = 1; i <= numPeriodo; i++) {
-        var periodo = document.getElementById("periodo"+i);
-        var numDisciplinas = periodo.childElementCount - 1;
-
-        for(var j = 1; j <= numDisciplinas; j++) {
-            var numCreditos = document.getElementById("periodo"+i+"-disciplina"+j+"-creditos").value;
-            var mencao = parseInt(document.getElementById("periodo"+i+"-disciplina"+j+"-mencao").value);
-            console.log(numCreditos, mencao)
-            if(mencao != -1 && numCreditos != -1) {
-                totalDisciplinas++;
-                 
-                numeradorIra += mencao * parseInt(numCreditos) * Math.min(6, i);
-                denominadorIra += parseInt(numCreditos) * Math.min(6, i);
-
-                numeradorMp += mencao * parseInt(numCreditos);
-                denominadorMp += parseInt(numCreditos);
-            }
-        }
-    }
-
-    var ira = numeradorIra / denominadorIra;
-    var mp = numeradorMp / denominadorMp;
-
-    if(ira != NaN && ira >= 0 && mp != NaN && mp >= 0)
-        document.getElementById("ira-mp").innerText = "IRA: " + ira.toFixed(4) + " MP: " + mp.toFixed(4);
-    
-}
-
-document.getElementById('container').onchange = function() {
-    calculaIRA();
-    salvarDados();
-}
-
-function removeDisciplina() {
-   
-    if(typeof(this.id) != 'undefined') {
-        numPeriodo = parseInt(this.id.split('-')[1]);
-        numDisciplina = parseInt(this.id.split('-')[2]);
-    }   
-
-    var divPeriodo = document.getElementById('periodo'+numPeriodo);
-    
-    if(numDisciplina > 1) {
-        // só removemos a disciplina atual
-       
-        divPeriodo.removeChild(document.getElementById('periodo'+numPeriodo+"-disciplina"+numDisciplina))
-        
-        numDisciplina = numDisciplina - 1;
-
-        var divDisciplina = document.getElementById("periodo"+numPeriodo+"-disciplina"+numDisciplina);
-        var divButton = document.createElement("div");
-        divButton.setAttribute("class", "col-sm");
-        divButton.setAttribute("id", "divButton-"+numPeriodo+"-"+numDisciplina);
-
-        divButton.appendChild(criaBotaoAdicionar(numPeriodo, numDisciplina));
-        divButton.appendChild(criaBotaoRemover(numPeriodo, numDisciplina));
-        divDisciplina.appendChild(divButton)
-    } else if(numPeriodo > 1) {
-        // removemos o período
-        var divContainer = document.getElementById('container');
-        divContainer.removeChild(divPeriodo);
-
-        // renomeio os períodos
-        var periodos = divContainer.children;
-
-        // pulo o primeiro pois ele é a linha superior
-        for(var i = 1; i < periodos.length; i++) {
-            periodos[i].id = "periodo"+i;
-
-            // cada período tem um h3 e divs com disciplinas;
-            var disciplinas = periodos[i].children;
-            disciplinas[0].innerText = i+"º Período";
-            
-            for(var j = 1; j < disciplinas.length; j++) {
-                disciplinas[j].id = "periodo"+i+"-disciplina"+j;
-
-                // dentro de cada disciplina há 2 ou três divs (três quando há botões)
-
-                var camposDisciplina = disciplinas[j].children;
-
-                for(var k = 0; k < camposDisciplina.length; k++) {
-                    if(k == 2) {
-                        // há dois botões como filho
-                        camposDisciplina[k].id = "divButton-"+i+"-"+j;
-
-                        var botoes = camposDisciplina[k].children;
-                        botoes[0].id = "adicionarDisciplina-"+i+"-"+j;                        
-                        botoes[1].id = "removerDisciplina-"+i+"-"+j;
-                    } else {
-                        // há um select como filho
-
-                        camposDisciplina[k].children[0].id = "periodo"+i+"-disciplina"+j+"-";
-
-                        if(k == 0) {
-                            camposDisciplina[k].children[0].id += "creditos";
-                        } else {
-                            camposDisciplina[k].children[0].id += "mencao";
-                        }
-                    }
-                }
-            }
-        }
-
-     
-    }
-    calculaIRA();
-    salvarDados();
-}
-
-function criaBotaoAdicionar(numPeriodo, numDisciplina) {
-    var botaoAdicionar = document.createElement("button");
-    botaoAdicionar.setAttribute("id", "adicionarDisciplina-"+numPeriodo+"-"+numDisciplina);
-    botaoAdicionar.setAttribute("class", "btn btn-primary");
-    botaoAdicionar.innerText = "Adicionar Disciplina";
-    botaoAdicionar.onclick = criaDisciplina;
-
-    return botaoAdicionar;
-}
-
-function criaBotaoRemover(numPeriodo, numDisciplina) {
-    var botaoRemover = document.createElement("button");
-    botaoRemover.setAttribute("id", "removerDisciplina-"+numPeriodo+"-"+numDisciplina);
-    botaoRemover.setAttribute("class", "btn btn-danger");
-    botaoRemover.innerText = "Remover Disciplina";
-    botaoRemover.onclick = removeDisciplina;
-
-    return botaoRemover;
-}
-
-function criaDisciplina(salva=false, numPeriodo = -1, numDisciplina = -1, dados=[]) {
-    var container = document.getElementById("container");
-  
-    if(salva !== MouseEvent) {
-        numPeriodo = container.childElementCount-1;
-
-        if(typeof(this.id) != 'undefined')
-            numPeriodo = parseInt(this.id.split("-")[1]);
-
-        numDisciplina = document.getElementById("periodo"+numPeriodo).childElementCount-1;
-    } 
-
-    var botaoAdicionar = document.getElementById("adicionarDisciplina-"+numPeriodo+"-"+numDisciplina);
-    var divBotao = document.getElementById("divButton-"+numPeriodo+"-"+numDisciplina)
-
-    // removo os botoes da disciplina de cima
-    if(typeof(botaoAdicionar) != 'undefined' && botaoAdicionar != null)
-        botaoAdicionar.remove();
-    if(typeof(divBotao) != 'undefined' && divBotao != null)
-        divBotao.remove();
-
-    var entradaCreditos = document.createElement('select');
-    entradaCreditos.setAttribute("id", "periodo"+numPeriodo+"-disciplina"+(numDisciplina+1)+"-creditos");
-    entradaCreditos.setAttribute("class", "form-select");
-    
-
-    for(var i = 0; i < textosCreditos.length; i++) {
-        var selecione = document.createElement('option')
-        selecione.innerText = textosCreditos[i];
-        selecione.value = valoresCreditos[i]
-        entradaCreditos.appendChild(selecione)
-    }
-
-    var entradaMencao  = document.createElement("select");
-    entradaMencao.setAttribute("id", "periodo"+numPeriodo+"-disciplina"+(numDisciplina+1)+"-mencao");
-    entradaMencao.setAttribute("class", "form-select");
-
-    var mencoes = ["Menção", "SR", "II", "MI", "MM", "MS", "SS"];
-
-    for(var i = 0; i < 7; i++) {
-        var opcaoMencao = document.createElement("option");
-        opcaoMencao.innerText = mencoes[i];
-        opcaoMencao.value = i-1; // o "menção" deve ter valor -1
-        entradaMencao.appendChild(opcaoMencao);
-    }
-
-    // +1 pois é a próxima disciplina
-    var botaoAdicionar = criaBotaoAdicionar(numPeriodo, numDisciplina + 1);
-    var botaoRemover = criaBotaoRemover(numPeriodo, numDisciplina + 1);
-    
-    var divDisciplinaNova = document.createElement("div");
-    divDisciplinaNova.setAttribute("class", "row g-3");
-    divDisciplinaNova.setAttribute("id", "periodo"+numPeriodo+"-disciplina"+(numDisciplina+1));
-
-    var divColDisciplina = document.createElement("div");
-    divColDisciplina.setAttribute("class", "col-sm-4");
-
-    var divColCreditos = document.createElement("div");
-    divColCreditos.setAttribute("class", "col-sm-2");
-
-    var divButton = document.createElement("div");
-    divButton.setAttribute("class", "col-sm");
-    divButton.setAttribute("id", "divButton-"+numPeriodo+"-"+(numDisciplina+1));
-
-    if(salva == true) {
-        entradaCreditos.selectedIndex = dados[0];
-        entradaMencao.selectedIndex = dados[1];
-    }
-
-    divColDisciplina.appendChild(entradaCreditos);
-    divColCreditos.appendChild(entradaMencao);
-
-    divButton.appendChild(botaoAdicionar);
-    divButton.appendChild(botaoRemover);
-
-    divDisciplinaNova.appendChild(divColDisciplina);
-    divDisciplinaNova.appendChild(divColCreditos);
-    divDisciplinaNova.appendChild(divButton);
-
-    var divPeriodo = document.getElementById("periodo"+numPeriodo);
-    divPeriodo.appendChild(divDisciplinaNova);
-
-}
-
-function criaPeriodo(salvo=false) {
-    var numPeriodo = document.getElementById("container").childElementCount;
-    var divContainer = document.getElementById("container");
-
-    var divNovoPeriodo = document.createElement("div");
-    divNovoPeriodo.setAttribute("id", "periodo"+numPeriodo);
-
-    var titulo = document.createElement("h3");
-    titulo.innerText = numPeriodo + "º Período";
-
-    divNovoPeriodo.appendChild(titulo);
-    divContainer.appendChild(divNovoPeriodo);
-
-    if(salvo == false)
-        criaDisciplina();
-}
-
