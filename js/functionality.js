@@ -72,3 +72,25 @@ function calcularResultado(periodo, disciplina) {
     // Atualiza o select para a menção correspondente
     resultadoSelect.value = resultado;
 }
+
+// Função para atualizar o status de Aprovado/Reprovado
+function atualizarStatus(periodo, disciplina) {
+    const resultadoSelect = document.getElementById(`periodo${periodo}-disciplina${disciplina}-resultado`);
+    const statusCol = document.getElementById(`status-col-${periodo}-${disciplina}`);
+    const statusSpan = document.getElementById(`status-${periodo}-${disciplina}`);
+
+    const resultado = resultadoSelect.value;
+
+    // Exibe o status de Aprovado ou Reprovado com base na menção
+    let status = "";
+
+    if (resultado === "SS" || resultado === "MS" || resultado === "MM") {
+        status = "Aprovado";
+    } else if (resultado === "II" || resultado === "MI" || resultado === "SR") {
+        status = "Reprovado";
+    }
+
+    // Mostra a coluna de status e atualiza o texto
+    statusSpan.textContent = status;
+    statusCol.style.display = "block"; // Exibe a coluna de status
+}
