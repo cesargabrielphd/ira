@@ -111,3 +111,21 @@ function atualizarStatus(periodo, disciplina, resultado) {
     statusSpan.textContent = status; // Atualiza o texto dentro da <span> com o ID correto
     statusCol.style.display = "block"; // Garante que o status seja exibido
 }
+
+function atualizarStatus(periodo, disciplina, resultado) {
+    // Busca os elementos HTML
+    const statusCol = document.getElementById(`status-col-${periodo}-${disciplina}`);
+    const statusSpan = document.getElementById(`status-${periodo}-${disciplina}`);
+
+    // Verifica se os elementos foram encontrados
+    if (statusCol && statusSpan) {
+        // Define o status com base no resultado
+        const status = resultado === 'Aprovado' ? 'Aprovado' : 'Reprovado';
+
+        // Atualiza o texto do span e exibe a coluna
+        statusSpan.textContent = status;
+        statusCol.style.display = 'block';
+    } else {
+        console.error(`Elementos não encontrados para o período ${periodo} e disciplina ${disciplina}`);
+    }
+}
