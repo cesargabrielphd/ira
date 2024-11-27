@@ -133,7 +133,7 @@ function atualizarIRA() {
       )?.value;
       const creditos = parseInt(
         document.getElementById(`periodo${p}-disciplina${d}-creditos`)?.value ||
-        0
+          0
       );
 
       if (mencao && creditos) {
@@ -152,9 +152,15 @@ function atualizarIRA() {
 
 // Função para monitorar mudanças nos campos
 function adicionarEventosParaMonitoramento(periodo, disciplina) {
-  const codigo = document.getElementById(`periodo${periodo}-disciplina${disciplina}-codigo`);
-  const creditos = document.getElementById(`periodo${periodo}-disciplina${disciplina}-creditos`);
-  const mencao = document.getElementById(`periodo${periodo}-disciplina${disciplina}-mencao`);
+  const codigo = document.getElementById(
+    `periodo${periodo}-disciplina${disciplina}-codigo`
+  );
+  const creditos = document.getElementById(
+    `periodo${periodo}-disciplina${disciplina}-creditos`
+  );
+  const mencao = document.getElementById(
+    `periodo${periodo}-disciplina${disciplina}-mencao`
+  );
 
   // Adicionar eventos de escuta
   codigo.addEventListener("input", coletaDados);
@@ -169,6 +175,75 @@ function adicionarEventosParaMonitoramento(periodo, disciplina) {
 function coletaDados() {
   const dados = {};
 
+  for (let p = 1; p <= periodoCount; p++) {
+    const periodoDiv = document.getElementById(`periodo${p}`);
+    if (!periodoDiv) continue;
+
+    dados[`Periodo ${p}`] = [];
+
+    for (let d = 1; d <= (disciplinaCount[p] || 0); d++) {
+      const codigo =
+        document.getElementById(`periodo${p}-disciplina${d}-codigo`)?.value ||
+        "";
+      const creditos = parseInt(
+        document.getElementById(`periodo${p}-disciplina${d}-creditos`)?.value ||
+          0
+      );
+      const mencao =
+        document.getElementById(`periodo${p}-disciplina${d}-mencao`)?.value ||
+        "";
+      const status =
+        document.getElementById(`status-${p}-${d}`)?.textContent ||
+        "Incompleto";
+
+      if (codigo && creditos > 0 && mencao) {
+        dados[`Periodo ${p}`].push({
+          codigo: codigo,
+          mencao: mencao,
+          creditos: creditos,
+          status: status,
+        });
+      }
+    }
+  }
+
+  console.log(dados);
+  return dados;
+}
+/* CALCULA O IRA */
+function calcularIRA() {
+  const dados = coletaDados();
+  let numeradorIra = 0;
+  let denominadorIra = 0;
+  const valoresMencao = {
+    SR: 0, // Sem rendimento
+    II: 1, // Insuficiente
+    MI: 2, // Médio insuficiente
+    MM: 3, // Médio
+    MS: 4, // Médio superior
+    SS: 5, // Superior
+  };
+  for (const periodo in dados) {
+    const disciplinas = dados[periodo];
+    const semestre = Math.max(6 - parseInt(periodo.split(" ")[1]) + 1, 1);
+    for (const disciplina of disciplinas) {
+      const { creditos, mencao } = disciplina;
+      if (!valoresMencao[mencao] || creditos <= 0) continue;
+      const valorMencao = valoresMencao[mencao];
+      numeradorIra += valorMencao * creditos * semestre;
+      denominadorIra += creditos * semestre;
+    }
+  }
+  const ira = denominadorIra > 0 ? numeradorIra / denominadorIra : 0;
+  const iraDisplay = document.getElementById("ira-mp");
+  if (iraDisplay) {
+    iraDisplay.textContent = `IRA: ${ira.toFixed(2)}`;
+  }
+  console.log(`IRA calculado: ${ira.toFixed(2)}`); // Exibe no console
+  return ira;
+}
+function coletaDados() {
+  const dados = {};
   for (let p = 1; p <= periodoCount; p++) {
     const periodoDiv = document.getElementById(`periodo${p}`);
     if (!periodoDiv) continue;
@@ -200,6 +275,27 @@ function coletaDados() {
     }
   }
 
-  console.log(dados);
+  console.log(dados); // Para monitorar os dados em tempo real
   return dados;
+}
+
+// Atualizar a função que adiciona eventos para monitorar mudanças
+function adicionarEventosParaMonitoramento(periodo, disciplina) {
+  const codigo = document.getElementById(`periodo${periodo}-disciplina${disciplina}-codigo`);
+  const creditos = document.getElementById(`periodo${periodo}-disciplina${disciplina}-creditos`);
+  const mencao = document.getElementById(`periodo${periodo}-disciplina${disciplina}-mencao`);
+
+  // Adicionar eventos de escuta
+  codigo.addEventListener("input", () => {
+    coletaDados();
+    calcularIRA();
+  });
+  creditos.addEventListener("change", () => {
+    coletaDados();
+    calcularIRA();
+  });
+  mencao.addEventListener("change", () => {
+    coletaDados();
+    calcularIRA();
+  });
 }
