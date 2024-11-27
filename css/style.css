@@ -24,5 +24,9 @@ footer {
 }
 
 .row.g-3 {
-    padding-bottom: 10px;
+    padding-bottom: 0.5rem !important;
+}
+.g-3,
+.gy-3 {
+    --bs-gutter-y: 0.25rem !important;
 }
