@@ -1,8 +1,16 @@
 .btn-danger {
     margin-left: 10px;
 }
+#header {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+}
 
-#titulo {
+#titulo,
+#ira-mp {
     text-align: center;
 }
 
