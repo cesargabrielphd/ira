@@ -40,7 +40,7 @@
         <div class="d-flex justify-content-between">
           <h3>1º Período</h3>
           <button
-            id="adicionarDisciplina1"
+            id="adicionarDisciplinaS"
             class="btn btn-primary"
             onclick="adicionarDisciplina(1)"
           >
@@ -48,7 +48,7 @@
           </button>
         </div>
 
-        <div id="periodo1-disciplina1" class="row g-3">
+        <div id="periodo1-disciplinas" class="row g-3">
           <div class="col-sm-4">
             <input
               type="text"
@@ -57,6 +57,27 @@
               placeholder="Código da Disciplina"
             />
           </div>
+          <div class="col-sm-4">
+            <select
+              id="periodo1-disciplina1-resultado"
+              class="form-control"
+              aria-placeholder="Resultado"
+            >
+              <option value="" selected disabled>Selecione os Créditos</option>
+              <option value="2">2 Créditos</option>
+              <option value="3">3 Créditos</option>
+              <option value="4">4 Créditos</option>
+              <option value="6">6 Créditos</option>
+              <option value="8">8 Créditos</option>
+              <option value="10">10 Créditos</option>
+              <option value="12">12 Créditos</option>
+              <option value="16">16 Créditos</option>
+              <option value="22">22 Créditos</option>
+              <option value="40">40 Créditos</option>
+              <option value="52">52 Créditos</option>
+              <option value="64">64 Créditos</option>
+            </select>
+          </div>
           <div class="col-sm-2">
             <select
               id="periodo1-disciplina1-resultado"
@@ -64,7 +85,7 @@
               aria-placeholder="Resultado"
               onchange="atualizarStatus(1, 1)"
             >
-            <option value="" selected disabled>Menção</option>
+              <option value="" selected disabled>Menção</option>
               <option value="SR">SR</option>
               <option value="II">II</option>
               <option value="MI">MI</option>
