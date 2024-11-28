@@ -17,7 +17,6 @@ span[id^="status-"] {
   border-color: #2997ff;
   color: #2997ff;
   background-color: transparent;
-  outline: none;
 }
 
 #header {
