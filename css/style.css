@@ -7,8 +7,8 @@ body {
   line-height: 1.5;
   color: #000000;
   background-color: var(--bg-color-white);
-      margin: 0;
-        padding: 0;
+  margin: 0;
+  padding: 0;
 }
 button,
 input,
@@ -42,6 +42,14 @@ span[id^="status-"] {
   margin: 0;
 }
 
+main {
+  position: relative;
+  max-width: 2560px;
+  margin-top: 0px;
+  margin-right: auto;
+  margin-bottom: 0px;
+  margin-left: auto;
+}
 #container {
   margin-bottom: 400px;
 }
