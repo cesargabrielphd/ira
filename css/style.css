@@ -74,6 +74,7 @@ div.row.g-3 > div.row.g-3 {
   flex-wrap: nowrap;
   width: 100%;
   justify-content: space-evenly;
+  align-items: center;
 }
 
 /* .btn-danger {
