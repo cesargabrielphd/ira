@@ -1,10 +1,12 @@
 body {
   --header-hight: 4em;
+  --bg-color-white: rgba(255, 255, 257, 1);
+  --bg-color-gray: rgb(245, 245, 247, 1);
   font-family: "Roboto", sans-serif;
   font-size: 16px;
   line-height: 1.5;
   color: #000000;
-  background-color: rgba(245, 245, 247, 0.5);
+  background-color: var(--bg-color-white);
 }
 button,
 input,
@@ -26,10 +28,10 @@ span[id^="status-"] {
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
-  justify-content: center;
-  align-items: center;
-  background-color: rgb(245, 245, 247, 0.5);
-  height: var(--header-hight);
+  align-items: stretch;
+  justify-content: space-around;
+  gap: 0.5rem;
+  background-color: var(--bg-color-gray);
   width: 100%;
 }
 #titulo,
@@ -37,14 +39,9 @@ span[id^="status-"] {
   text-align: center;
   margin: 0;
 }
+
 #container {
   margin-bottom: 400px;
-}
-div[id="linhaSuperior"] {
-  padding: 0.5rem;
-}
-div[id="linhaSuperior"] button {
-  margin-right: 0.5rem;
 }
 
 div#container {
@@ -56,8 +53,11 @@ div#container {
   margin-bottom: 1rem;
 }
 div#linhaSuperior {
-    position: sticky;
-    top: calc(10px + var(--header-hight));}
+  position: sticky;
+  top: calc(10px + var(--header-hight));
+  display: flex;
+  justify-content: center;
+}
 
 div[id^="periodo"] {
   display: flex;
@@ -120,5 +120,5 @@ footer {
   left: 0;
   bottom: 0;
   text-align: center;
-  background-color: rgb(245, 245, 247);
+  background-color: var(--bg-color-gray);
 }
