@@ -44,9 +44,8 @@ function adicionarDisciplina(periodoId) {
         class="form-control"
         placeholder="Código da Disciplina"
         pattern="[A-Z]{3}[0-9]{4}" 
-  title="O código deve ter 3 letras maiúsculas seguidas de 4 dígitos (ex.: ABC1234)."
-  oninput="this.setCustomValidity('')" 
-  onchange="validarCodigo(this)"
+        title="O código deve ter 3 letras maiúsculas seguidas de 4 dígitos (ex.: ABC1234)."
+        oninput="this.setCustomValidity('')" 
       />
     </div>
     <div class="col-sm-4">
