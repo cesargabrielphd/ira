@@ -224,9 +224,11 @@ function adicionarEventosParaMonitoramento(periodo, disciplina) {
 }
 
 function formatarCodigo(input) {
-  let valor = input.value;
-  valor = valor.replace(/[^a-zA-Z0-9]/g, '');
-  let letras = valor.slice(0, 3).toUpperCase();
-  let numeros = valor.slice(3, 7).replace(/[^0-9]/g, '');
-  input.value = letras + numeros;
+  let valor = input.value.replace(/[^A-Za-z0-9]/g, '');
+  if (valor.length > 3) {
+    valor = valor.slice(0, 3).toUpperCase() + valor.slice(3, 7).replace(/[^0-9]/g, '');
+  } else {
+    valor = valor.toUpperCase(); // Converte para letras maiúsculas enquanto digita
+  }
+  input.value = valor.slice(0, 7);
 }
