@@ -1,14 +1,12 @@
-let periodoCount = 0; // Contador global para períodos
-let disciplinaCount = {}; // Contador de disciplinas por período
+let periodoCount = 0; 
+let disciplinaCount = {};
 
-// Função para inicializar o primeiro período
 function criaPeriodo() {
   periodoCount++;
   disciplinaCount[periodoCount] = 0;
 
   const container = document.getElementById("container");
 
-  // Cria o elemento do novo período
   const periodoDiv = document.createElement("div");
   periodoDiv.id = `periodo${periodoCount}`;
   periodoDiv.innerHTML = `
@@ -26,11 +24,9 @@ function criaPeriodo() {
 
   container.appendChild(periodoDiv);
 
-  // Cria a primeira disciplina automaticamente
   adicionarDisciplina(periodoCount);
 }
 
-// Função para adicionar uma disciplina em um período
 function adicionarDisciplina(periodoId) {
   disciplinaCount[periodoId]++;
   const disciplinaId = disciplinaCount[periodoId];
@@ -38,7 +34,6 @@ function adicionarDisciplina(periodoId) {
     `periodo${periodoId}-disciplinas`
   );
 
-  // Cria o elemento da nova disciplina
   const disciplinaDiv = document.createElement("div");
   disciplinaDiv.className = "row g-3";
   disciplinaDiv.innerHTML = `
@@ -48,6 +43,10 @@ function adicionarDisciplina(periodoId) {
         id="periodo${periodoId}-disciplina${disciplinaId}-codigo"
         class="form-control"
         placeholder="Código da Disciplina"
+        pattern="[A-Z]{3}[0-9]{4}" 
+  title="O código deve ter 3 letras maiúsculas seguidas de 4 dígitos (ex.: ABC1234)."
+  oninput="this.setCustomValidity('')" 
+  onchange="validarCodigo(this)"
       />
     </div>
     <div class="col-sm-4">
@@ -92,17 +91,12 @@ function adicionarDisciplina(periodoId) {
 
   disciplinasDiv.appendChild(disciplinaDiv);
 
-  // Adicionar monitoramento para os novos campos
   adicionarEventosParaMonitoramento(periodoId, disciplinaId);
 }
-
-// Função para determinar o status da menção
 function determinarStatus(mencao) {
   const aprovadas = ["MM", "MS", "SS"];
   return aprovadas.includes(mencao) ? "Aprovado" : "Reprovado";
 }
-
-// Função para atualizar o status com base na menção
 function atualizarStatus(periodoId, disciplinaId) {
   const mencao = document.getElementById(
     `periodo${periodoId}-disciplina${disciplinaId}-mencao`
@@ -118,69 +112,48 @@ function atualizarStatus(periodoId, disciplinaId) {
 
   const status = determinarStatus(mencao);
   statusSpan.textContent = status;
-  atualizarIRA(); // Atualiza o IRA para refletir apenas disciplinas válidas
+  atualizarIRA();
 }
-
-// Função para atualizar o IRA geral
 function calcularIRA() {
-  // Obtém os dados preenchidos no formulário
   const dados = coletaDados();
-
   let numeradorIra = 0;
   let denominadorIra = 0;
-
-  // Define os valores das menções
   const valoresMencao = {
-    SR: 0, // Sem rendimento
-    II: 1, // Insuficiente
-    MI: 2, // Médio insuficiente
-    MM: 3, // Médio
-    MS: 4, // Médio superior
-    SS: 5, // Superior
+    SR: 0, 
+    II: 1, 
+    MI: 2, 
+    MM: 3, 
+    MS: 4, 
+    SS: 5, 
   };
-
   for (const periodo in dados) {
     const disciplinas = dados[periodo];
-
-    // Determina o semestre relativo, considerando que o 1º período é o semestre 6 (peso máximo)
     const semestre = Math.max(6 - parseInt(periodo.split(" ")[1]) + 1, 1);
-
     for (const disciplina of disciplinas) {
-      const { creditos, mencao } = disciplina;
-
-      // Ignorar disciplinas sem menção ou créditos inválidos
+      const {
+        creditos,
+        mencao
+      } = disciplina;
       if (!valoresMencao[mencao] || creditos <= 0) continue;
-
       const valorMencao = valoresMencao[mencao];
-
-      // Adicionar ao numerador e denominador da fórmula
       numeradorIra += valorMencao * creditos * semestre;
       denominadorIra += creditos * semestre;
     }
   }
-
-  // Calcula o IRA
   const ira = denominadorIra > 0 ? numeradorIra / denominadorIra : 0;
-
-  // Atualiza a exibição no HTML
   const iraDisplay = document.getElementById("ira-mp");
   if (iraDisplay) {
     iraDisplay.textContent = `IRA: ${ira.toFixed(2)}`;
   }
-
   console.log(`IRA calculado: ${ira.toFixed(2)}`); // Exibe no console
   return ira;
 }
-
 function coletaDados() {
   const dados = {};
-
   for (let p = 1; p <= periodoCount; p++) {
     const periodoDiv = document.getElementById(`periodo${p}`);
     if (!periodoDiv) continue;
-
     dados[`Periodo ${p}`] = [];
-
     for (let d = 1; d <= (disciplinaCount[p] || 0); d++) {
       const codigo = document.getElementById(
         `periodo${p}-disciplina${d}-codigo`
@@ -194,7 +167,6 @@ function coletaDados() {
       const status = document.getElementById(
         `status-${p}-${d}`
       )?.textContent || "Incompleto";
-
       if (codigo && creditos > 0 && mencao) {
         dados[`Periodo ${p}`].push({
           codigo: codigo,
@@ -206,14 +178,12 @@ function coletaDados() {
     }
   }
 
-  console.log(dados); // Para monitorar os dados em tempo real
+  console.log(dados);
   return dados;
 }
-// Função para atualizar o IRA geral
 function atualizarIRA() {
   let totalCreditos = 0;
   let creditosAprovados = 0;
-
   for (let p = 1; p <= periodoCount; p++) {
     for (let d = 1; d <= (disciplinaCount[p] || 0); d++) {
       const mencao = document.getElementById(
@@ -222,7 +192,6 @@ function atualizarIRA() {
       const creditos = parseInt(
         document.getElementById(`periodo${p}-disciplina${d}-creditos`)?.value || 0
       );
-
       if (mencao && creditos) {
         totalCreditos += creditos;
         if (determinarStatus(mencao) === "Aprovado") {
@@ -231,18 +200,15 @@ function atualizarIRA() {
       }
     }
   }
-
   const mp = totalCreditos > 0 ? creditosAprovados : 0;
   const iraDisplay = document.getElementById("ira-mp");
   iraDisplay.textContent = `MP: ${mp} Créditos`;
 }
-// Atualizar a função que adiciona eventos para monitorar mudanças
 function adicionarEventosParaMonitoramento(periodo, disciplina) {
   const codigo = document.getElementById(`periodo${periodo}-disciplina${disciplina}-codigo`);
   const creditos = document.getElementById(`periodo${periodo}-disciplina${disciplina}-creditos`);
   const mencao = document.getElementById(`periodo${periodo}-disciplina${disciplina}-mencao`);
 
-  // Adicionar eventos de escuta
   codigo.addEventListener("input", () => {
     coletaDados();
     calcularIRA();
@@ -256,3 +222,4 @@ function adicionarEventosParaMonitoramento(periodo, disciplina) {
     calcularIRA();
   });
 }
+
