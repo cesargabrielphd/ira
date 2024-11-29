@@ -43,9 +43,10 @@ function adicionarDisciplina(periodoId) {
         id="periodo${periodoId}-disciplina${disciplinaId}-codigo"
         class="form-control"
         placeholder="Código da Disciplina"
-        pattern="[A-Z]{3}[0-9]{4}" 
-        title="O código deve ter 3 letras maiúsculas seguidas de 4 dígitos (ex.: ABC1234)."
-        oninput="this.setCustomValidity('')" 
+        pattern="[A-Z]{3}[0-9]{4}"
+        title="O código será automaticamente formatado para 3 letras maiúsculas e 4 números (ex.: ABC1234)."
+        oninput="formatarCodigo(this)"
+        maxlength="7"
       />
     </div>
     <div class="col-sm-4">
@@ -222,3 +223,10 @@ function adicionarEventosParaMonitoramento(periodo, disciplina) {
   });
 }
 
+function formatarCodigo(input) {
+  let valor = input.value;
+  valor = valor.replace(/[^a-zA-Z0-9]/g, '');
+  let letras = valor.slice(0, 3).toUpperCase();
+  let numeros = valor.slice(3, 7).replace(/[^0-9]/g, '');
+  input.value = letras + numeros;
+}
