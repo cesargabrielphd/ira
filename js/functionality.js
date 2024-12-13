@@ -36,6 +36,7 @@ function adicionarDisciplina(periodoId) {
 
   const disciplinaDiv = document.createElement("div");
   disciplinaDiv.className = "row g-3";
+  disciplinaDiv.id = `periodo${periodoId}-disciplina${disciplinaId}`;
   disciplinaDiv.innerHTML = `
     <div class="col-sm-4">
       <input
@@ -87,12 +88,21 @@ function adicionarDisciplina(periodoId) {
     <div class="col-sm-2" id="status-col-${periodoId}-${disciplinaId}">
       <span id="status-${periodoId}-${disciplinaId}">Status</span>
     </div>
+    <div class="col-sm-12">
+      <button class="btn btn-danger" onclick="removerDisciplina(${periodoId}, ${disciplinaId})">Remover Disciplina</button>
+    </div>
   `;
 
   disciplinasDiv.appendChild(disciplinaDiv);
 
   adicionarEventosParaMonitoramento(periodoId, disciplinaId);
 }
+
+function removerDisciplina(periodoId, disciplinaId) {
+  const disciplinaDiv = document.getElementById(`periodo${periodoId}-disciplina${disciplinaId}`);
+  disciplinaDiv.remove();
+}
+
 function determinarStatus(mencao) {
   const aprovadas = ["MM", "MS", "SS"];
   return aprovadas.includes(mencao) ? "Aprovado" : "Reprovado";
