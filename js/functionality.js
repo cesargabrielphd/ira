@@ -155,7 +155,7 @@ function calcularIRA() {
   if (iraDisplay) {
     iraDisplay.textContent = `IRA: ${ira.toFixed(2)}`;
   }
-  console.log(`IRA calculado: ${ira.toFixed(2)}`); // Exibe no console
+  console.log(`IRA calculado: ${ira.toFixed(2)}`); 
   return ira;
 }
 function coletaDados() {
@@ -238,7 +238,73 @@ function formatarCodigo(input) {
   if (valor.length > 3) {
     valor = valor.slice(0, 3).toUpperCase() + valor.slice(3, 7).replace(/[^0-9]/g, '');
   } else {
-    valor = valor.toUpperCase(); // Converte para letras maiúsculas enquanto digita
+    valor = valor.toUpperCase(); 
   }
   input.value = valor.slice(0, 7);
 }
+
+function coletaDados() {
+  const dados = {};
+  for (let p = 1; p <= periodoCount; p++) { 
+    const periodoDiv = document.getElementById(`periodo${p}`);
+    if (!periodoDiv) continue;
+    dados[`Periodo ${p}`] = [];
+    for (let d = 1; d <= (disciplinaCount[p] || 0); d++) {
+      const codigo = document.getElementById(`periodo${p}-disciplina${d}-codigo`)?.value || "";
+      const creditos = parseInt(document.getElementById(`periodo${p}-disciplina${d}-creditos`)?.value || 0);
+      const mencao = document.getElementById(`periodo${p}-disciplina${d}-mencao`)?.value || "";
+
+      if (codigo && creditos > 0 && mencao) {
+        dados[`Periodo ${p}`].push({
+          codigo: codigo,
+          mencao: mencao,
+          creditos: creditos,
+        });
+      }
+    }
+  }
+  return dados;
+}
+
+function verificarPreenchimento() {
+  const dados = coletaDados();
+  const botaoBaixar = document.getElementById("botao-baixar");
+  let preenchido = Object.values(dados).some(periodo => periodo.length > 0);
+  botaoBaixar.style.display = preenchido ? "block" : "none";
+}
+
+function baixarDados() {
+  const dados = coletaDados();
+  const json = JSON.stringify(dados, null, 2);
+  const blob = new Blob([json], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "dados.json";
+  a.click();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const footer = document.querySelector("footer");
+  if (footer) {
+    const paragrafo = footer.querySelector("p"); 
+    const botaoBaixar = document.createElement("button");
+    botaoBaixar.id = "botao-baixar";
+    botaoBaixar.className = "btn btn-success";
+    botaoBaixar.style.display = "none";
+    botaoBaixar.textContent = "Baixar Dados";
+    botaoBaixar.onclick = baixarDados;
+
+    if (paragrafo) { 
+      footer.insertBefore(botaoBaixar, paragrafo); 
+    } else {
+      footer.appendChild(botaoBaixar); 
+    }
+  }
+
+  const container = document.getElementById('container');
+  if (container) {
+    container.addEventListener('input', verificarPreenchimento);
+    container.addEventListener('change', verificarPreenchimento);
+  }
+});
