@@ -154,7 +154,7 @@ div.row.g-3 > div.row.g-3 {
   border-color: #b02a37;
 }
 footer {
-  position: fixed;
+  position: relative;
   bottom: 0;
   padding-top: 1em;
   padding-bottom: 1em;
