@@ -1,5 +1,6 @@
 let periodoCount = 0; 
 let disciplinaCount = {};
+const maxDisciplinas = 8;
 
 function criaPeriodo() {
   periodoCount++;
@@ -28,6 +29,10 @@ function criaPeriodo() {
 }
 
 function adicionarDisciplina(periodoId) {
+  if (disciplinaCount[periodoId] >= maxDisciplinas) {
+    alert(`Você atingiu o limite máximo de ${maxDisciplinas} disciplinas para este período.`);
+    return;
+  }
   disciplinaCount[periodoId]++;
   const disciplinaId = disciplinaCount[periodoId];
   const disciplinasDiv = document.getElementById(
