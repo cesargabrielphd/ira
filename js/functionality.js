@@ -287,7 +287,15 @@ function baixarDados() {
 document.addEventListener("DOMContentLoaded", () => {
   const footer = document.querySelector("footer");
   if (footer) {
-    const paragrafo = footer.querySelector("p"); 
+    let avisosDiv = footer.querySelector(".avisos");
+    if (!avisosDiv) {
+      avisosDiv = document.createElement("div");
+      avisosDiv.className = "avisos";
+      footer.appendChild(avisosDiv);
+    }
+    
+    const paragrafo = footer.querySelector("p");
+    
     const botaoBaixar = document.createElement("button");
     botaoBaixar.id = "botao-baixar";
     botaoBaixar.className = "btn btn-success";
@@ -295,10 +303,9 @@ document.addEventListener("DOMContentLoaded", () => {
     botaoBaixar.textContent = "Baixar Dados";
     botaoBaixar.onclick = baixarDados;
 
-    if (paragrafo) { 
-      footer.insertBefore(botaoBaixar, paragrafo); 
-    } else {
-      footer.appendChild(botaoBaixar); 
+    avisosDiv.appendChild(botaoBaixar);
+    if (paragrafo) {
+      avisosDiv.appendChild(paragrafo);
     }
   }
 
